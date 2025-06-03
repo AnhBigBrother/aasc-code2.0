@@ -1,0 +1,31 @@
+FROM node:20 AS base
+
+# Build front-end --------------------------------
+FROM base AS client
+
+WORKDIR /app
+
+COPY client/package*.json ./
+RUN npm ci
+
+COPY client .
+RUN npm run build
+
+
+# Build server --------------------------------
+FROM base AS server
+
+WORKDIR /app
+
+COPY server/package*.json ./
+RUN npm ci
+
+COPY server .
+RUN npm run build
+
+# Copy front-end static files to the server
+COPY --from=client /app/dist ./client
+
+EXPOSE 3000
+
+CMD ["node", "dist/main"] 

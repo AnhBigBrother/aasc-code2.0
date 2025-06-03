@@ -1,7 +1,7 @@
-// 100th fibonacci number is too big (21 digits), so I split the number into 2 part,
-// each part has at most 10^11 digits (because JavaScript MAX_SAFE_INTEGER = 9007199254740991 > 10^11).
+// 100th fibonacci number is too big (21 digits), so I split the number into 2 numbers,
+// each number has at most 10^11 digits (because JavaScript MAX_SAFE_INTEGER = 9007199254740991 > 10^11).
 // answer : BigNum = [x, y]
-// The real answer is x * 10^12 + y
+// The real answer is x * 10^11 + y
 type BigNum = [number, number];
 
 const MOD = 1e11;
@@ -10,18 +10,16 @@ const MOD = 1e11;
 function add(result: BigNum, a: BigNum, b: BigNum) {
   let rem = 0;
 
-  let y = a[1] + b[1];
-  if (y > MOD) {
-    y %= MOD;
+  result[1] = a[1] + b[1];
+  if (result[1] > MOD) {
+    result[1] %= MOD;
     rem = 1;
   }
 
-  result[1] = y;
-
+  result[0] = a[0] + b[0] + rem;
   // Don't worry, a[0] + b[0] never has more than 10^11 digits,
   // because fib100 has 21 digit, fib100[1] has at most 10^11 digits,
   // so a[0] + b[0] <= fib100[0] has at most 10^10 digits
-  result[0] = a[0] + b[0] + rem;
 }
 
 // assign value of y to x | time-complexity: O(1)
@@ -50,8 +48,7 @@ console.time("time-taken");
 const ans = fibonacci100();
 console.timeEnd("time-taken");
 
-console.log("100-th fibonacci number:", ans);
-
 // Complexity:
 // Time complexity: O(100)
 // Space complexity: O(1)
+console.log("100-th fibonacci number:", ans);
