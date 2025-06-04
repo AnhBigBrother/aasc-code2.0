@@ -24,7 +24,7 @@ COPY server .
 RUN npm run build
 
 # Copy front-end static files to the server
-COPY --from=client /app/dist ./client
+COPY --from=client /app/dist ./static
 
 EXPOSE 3000
 

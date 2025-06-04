@@ -125,7 +125,7 @@ const Line98 = () => {
 
   return (
     <div className="w-full h-full flex items-center justify-center flex-col">
-      <div className="w-full flex justify-between">
+      <div className="w-[36rem] p-2 flex justify-between">
         <h1 className="text-2xl font-bold">Line 98</h1>
         <button
           onClick={showHint}

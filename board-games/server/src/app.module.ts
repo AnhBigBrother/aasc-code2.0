@@ -13,7 +13,7 @@ import { CaroGateway } from './caro/caro.gateway';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
+      rootPath: join(__dirname, '..', 'static'),
     }),
     JwtModule.register({
       global: true,
