@@ -62,13 +62,14 @@ const CaroBoard = () => {
   const [roomName, setRoomName] = useState<string>("");
   const [message, setMessage] = useState<string[]>([]);
   const [gameId, setGameId] = useState<number>(-1);
+  const [winner, setWinner] = useState<TCellValue>("_");
   const [board, setBoard] = useState<TCellValue[][]>(
     new Array(12).fill(new Array(12).fill("_")).map((row) => [...row]),
   );
   const user = useUserStore.use.user();
   useEffect(() => {
-    if (isConnected) {
-      return;
+    if (!isConnected) {
+      socket.connect();
     }
 
     const onConnect = () => {
@@ -103,19 +104,17 @@ const CaroBoard = () => {
       console.log(data);
     };
 
-    const onGameEnd = (data: { winner: TCellValue }) => {
+    const onGameEnd = (data: { winner: TCellValue; game: LiveGame }) => {
       socket.emit("leave-room", {
         room: roomName,
         nickname: user?.nickname || "someone",
       });
+      setBoard(data.game.board);
+      setWinner(data.winner);
       setMessage((pre) => [...pre, `${data.winner} is Winner`]);
-      setPlayAs("_");
       setCurrenTurn("_");
       setRoomName("");
       setGameId(-1);
-      setBoard(
-        new Array(12).fill(new Array(12).fill("_")).map((row) => [...row]),
-      );
     };
 
     socket.on("connect", onConnect);
@@ -142,6 +141,7 @@ const CaroBoard = () => {
       room: roomName,
       nickname: user?.nickname || "someone",
     });
+    setWinner("_");
     setBoard(
       new Array(12).fill(new Array(12).fill("_")).map((row) => [...row]),
     );
@@ -156,7 +156,12 @@ const CaroBoard = () => {
 
   return (
     <div className="flex gap-x-3">
-      <div className="grid grid-cols-12 grid-rows-12 gap-1 w-[32rem] h-[32rem]">
+      <div className="relative grid grid-cols-12 grid-rows-12 gap-1 w-[32rem] h-[32rem]">
+        {winner !== "_" && (
+          <div className="absolute w-full h-full top-0 left-0 bg-primary/50 flex items-center justify-center text-3xl font-bold text-background">
+            <h1>{winner} IS WIN</h1>
+          </div>
+        )}
         {board.map((row, x) => (
           <Fragment key={`row-${x}`}>
             {row.map((_, y) => (

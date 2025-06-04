@@ -182,7 +182,7 @@ export class CaroGateway
     }
     const winner = CheckCaro(game.board, position);
     if (winner !== '_') {
-      return this.io.to(room).emit('game-end', { winner: winner });
+      return this.io.to(room).emit('game-end', { winner: winner, game });
     }
     return this.io.to(room).emit('live-game', game);
   }
