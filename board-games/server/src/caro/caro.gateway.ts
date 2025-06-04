@@ -110,7 +110,6 @@ export class CaroGateway
     @MessageBody('room') room: string,
     @MessageBody('nickname') nickname: string,
   ) {
-    console.log("here")
     if (!room) {
       return;
     }

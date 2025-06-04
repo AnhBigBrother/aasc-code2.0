@@ -156,7 +156,7 @@ const CaroBoard = () => {
 
   return (
     <div className="flex gap-x-3">
-      <div className="relative grid grid-cols-12 grid-rows-12 gap-1 w-[32rem] h-[32rem]">
+      <div className="relative grid grid-cols-12 grid-rows-12 gap-1 w-[32rem] h-[32rem] shrink-0">
         {winner !== "_" && (
           <div className="absolute w-full h-full top-0 left-0 bg-primary/50 flex items-center justify-center text-3xl font-bold text-background">
             <h1>{winner} IS WIN</h1>

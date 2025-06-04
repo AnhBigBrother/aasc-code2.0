@@ -1,5 +1,5 @@
-import type { BallColor, BallPosition } from "@/components/line98-ball";
-import type { TBall98 } from "@/pages/games/line98";
+import type { BallColor, BallPosition, TBall98 } from "@/pages/games/line98";
+import { resolve4 } from "dns";
 
 export const colors: BallColor[] = ["RED", "GREEN", "BLUE", "PURPLE", "YELLOW"];
 
@@ -46,7 +46,7 @@ export function threeRandomEmptyPositions(
   return result;
 }
 
-export function exploreLines(
+export function explode(
   board: TBall98[][],
   ...positions: BallPosition[]
 ): TBall98[][] {
@@ -271,18 +271,22 @@ export function checkMove(
       if (x - 1 >= 0 && board[x - 1][y].size !== "big" && !visited[x - 1][y]) {
         visited[x - 1][y] = true;
         newQueue.push({ x: x - 1, y });
+        if (visited[endPos.x][endPos.y]) return true;
       }
       if (x + 1 < 9 && board[x + 1][y].size !== "big" && !visited[x + 1][y]) {
         visited[x + 1][y] = true;
         newQueue.push({ x: x + 1, y });
+        if (visited[endPos.x][endPos.y]) return true;
       }
       if (y - 1 >= 0 && board[x][y - 1].size !== "big" && !visited[x][y - 1]) {
         visited[x][y - 1] = true;
         newQueue.push({ x, y: y - 1 });
+        if (visited[endPos.x][endPos.y]) return true;
       }
       if (y + 1 < 9 && board[x][y + 1].size !== "big" && !visited[x][y + 1]) {
         visited[x][y + 1] = true;
         newQueue.push({ x, y: y + 1 });
+        if (visited[endPos.x][endPos.y]) return true;
       }
     }
     queue = newQueue;
@@ -325,15 +329,410 @@ export function processBoard(
   for (let pos of smallBallPos) {
     board[pos.x][pos.y].size = "big";
   }
+
+  const result = explode(board, endPos, ...smallBallPos);
   const threeNewPos = threeRandomEmptyPositions(emptyPos);
   const threeNewColor = threeRandomColor();
   for (let i in threeNewPos) {
     let pos = threeNewPos[i];
-    board[pos.x][pos.y].color = threeNewColor[i];
-    board[pos.x][pos.y].size = "small";
+    result[pos.x][pos.y].color = threeNewColor[i];
+    result[pos.x][pos.y].size = "small";
   }
 
-  const result = exploreLines(board, endPos, ...smallBallPos);
-
   return result;
+}
+
+export function checkBest(
+  board: TBall98[][],
+  startPos: BallPosition,
+  endPos: BallPosition,
+): boolean {
+  let color = board[startPos.x][startPos.y].color;
+  let x = endPos.x,
+    y = endPos.y;
+
+  // check row
+  let l = y,
+    r = y;
+  while (l - 1 >= 0) {
+    if (x === startPos.x && l - 1 === startPos.y) {
+      break;
+    }
+    if (board[x][l - 1].size === "big" && board[x][l - 1].color === color) {
+      l--;
+    } else {
+      break;
+    }
+  }
+  while (r + 1 < 9) {
+    if (x === startPos.x && r + 1 === startPos.y) {
+      break;
+    }
+    if (board[x][r + 1].size === "big" && board[x][r + 1].color === color) {
+      r++;
+    } else {
+      break;
+    }
+  }
+  if (
+    r - l + 1 >= 5 &&
+    !(startPos.x === endPos.x && l <= startPos.y && startPos.y <= r) // the case start and end in the same row
+  ) {
+    return true;
+  }
+
+  // check colum
+  let u = x,
+    d = x;
+  while (u - 1 >= 0) {
+    if (u - 1 === startPos.x && y === startPos.y) {
+      break;
+    }
+    if (board[u - 1][y].size === "big" && board[u - 1][y].color === color) {
+      u--;
+    } else {
+      break;
+    }
+  }
+  while (d + 1 < 9) {
+    if (d + 1 === startPos.x && y === startPos.y) {
+      break;
+    }
+    if (board[d + 1][y].size === "big" && board[d + 1][y].color === color) {
+      d++;
+    } else {
+      break;
+    }
+  }
+  if (
+    d - u + 1 >= 5 &&
+    !(startPos.y === endPos.y && u <= startPos.y && startPos.y <= d) // the case start and end in the same column
+  ) {
+    return true;
+  }
+
+  // check diagonal 1
+  let du1 = x, // diagonal-up pointer
+    dd1 = x, // diagonal-down pointer
+    dl1 = y, // diagonal-left pointer
+    dr1 = y, // diagonal-right pointer
+    di1 = 1;
+  while (du1 - 1 >= 0 && dl1 - 1 >= 0) {
+    if (du1 - 1 === startPos.x && dl1 - 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[du1 - 1][dl1 - 1].size === "big" &&
+      board[du1 - 1][dl1 - 1].color === color
+    ) {
+      du1--;
+      dl1--;
+      di1++;
+    } else {
+      break;
+    }
+  }
+  while (dd1 + 1 < 9 && dr1 + 1 < 9) {
+    if (dd1 + 1 === startPos.x && dr1 + 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[dd1 + 1][dr1 + 1].size === "big" &&
+      board[dd1 + 1][dr1 + 1].color === color
+    ) {
+      dd1++;
+      dr1++;
+      di1++;
+    } else {
+      break;
+    }
+  }
+  if (di1 >= 5) {
+    return true;
+  }
+
+  // check diagnal 2
+  let du2 = x, // diagonal-up pointer
+    dd2 = x, // diagonal-down pointer
+    dl2 = y, // diagonal-left pointer
+    dr2 = y, // diagonal-right pointer
+    di2 = 1;
+  while (du2 - 1 >= 0 && dr2 + 1 < 9) {
+    if (du2 - 1 === startPos.x && dr2 + 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[du2 - 1][dr2 + 1].size === "big" &&
+      board[du2 - 1][dr2 + 1].color === color
+    ) {
+      du2--;
+      dr2++;
+      di2++;
+    } else {
+      break;
+    }
+  }
+  while (dd2 + 1 < 9 && dl2 - 1 >= 0) {
+    if (dd2 + 1 === startPos.x && dl2 - 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[dd2 + 1][dl2 - 1].size === "big" &&
+      board[dd2 + 1][dl2 - 1].color === color
+    ) {
+      dd2++;
+      dl2--;
+      di2++;
+    } else {
+      break;
+    }
+  }
+  if (di2 >= 5) {
+    return true;
+  }
+  return false;
+}
+
+export function checkGood(
+  board: TBall98[][],
+  startPos: BallPosition,
+  endPos: BallPosition,
+): boolean {
+  let color = board[startPos.x][startPos.y].color;
+  let x = endPos.x,
+    y = endPos.y;
+
+  // check row
+  let l = y,
+    r = y;
+  while (l - 1 >= 0) {
+    if (x === startPos.x && l - 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[x][l - 1].size === "none" ||
+      (board[x][l - 1].size === "big" && board[x][l - 1].color === color)
+    ) {
+      l--;
+    } else {
+      break;
+    }
+  }
+  while (r + 1 < 9) {
+    if (x === startPos.x && r + 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[x][r + 1].size === "none" ||
+      (board[x][r + 1].size === "big" && board[x][r + 1].color === color)
+    ) {
+      r++;
+    } else {
+      break;
+    }
+  }
+  if (
+    r - l + 1 >= 5 &&
+    !(startPos.x === endPos.x && l <= startPos.y && startPos.y <= r)
+  ) {
+    return true;
+  }
+
+  // check colum
+  let u = x,
+    d = x;
+  while (u - 1 >= 0) {
+    if (
+      board[u - 1][y].size === "none" ||
+      (startPos.y === endPos.y &&
+        board[u - 1][y].size === "big" &&
+        board[u - 1][y].color === color)
+    ) {
+      u--;
+    } else {
+      break;
+    }
+  }
+  while (d + 1 < 9) {
+    if (
+      board[d + 1][y].size === "none" ||
+      (board[d + 1][y].size === "big" && board[d + 1][y].color === color)
+    ) {
+      d++;
+    } else {
+      break;
+    }
+  }
+  if (d - u + 1 >= 5 && !(u <= startPos.y && startPos.y <= d)) {
+    return true;
+  }
+
+  // check diagonal 1
+  let du1 = x, // diagonal-up pointer
+    dd1 = x, // diagonal-down pointer
+    dl1 = y, // diagonal-left pointer
+    dr1 = y, // diagonal-right pointer
+    di1 = 1;
+  while (du1 - 1 >= 0 && dl1 - 1 >= 0) {
+    if (du1 - 1 === startPos.x && dl1 - 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[du1 - 1][dl1 - 1].size === "none" ||
+      (board[du1 - 1][dl1 - 1].size === "big" &&
+        board[du1 - 1][dl1 - 1].color === color)
+    ) {
+      du1--;
+      dl1--;
+      di1++;
+    } else {
+      break;
+    }
+  }
+  while (dd1 + 1 < 9 && dr1 + 1 < 9) {
+    if (dd1 + 1 === startPos.x && dr1 + 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[dd1 + 1][dr1 + 1].size === "none" ||
+      (board[dd1 + 1][dr1 + 1].size === "big" &&
+        board[dd1 + 1][dr1 + 1].color === color)
+    ) {
+      dd1++;
+      dr1++;
+      di1++;
+    } else {
+      break;
+    }
+  }
+  if (di1 >= 5) {
+    return true;
+  }
+
+  // check diagnal 2
+  let du2 = x, // diagonal-up pointer
+    dd2 = x, // diagonal-down pointer
+    dl2 = y, // diagonal-left pointer
+    dr2 = y, // diagonal-right pointer
+    di2 = 1;
+  while (du2 - 1 >= 0 && dr2 + 1 < 9) {
+    if (du2 - 1 === startPos.x && dr2 + 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[du2 - 1][dr2 + 1].size === "none" ||
+      (board[du2 - 1][dr2 + 1].size === "big" &&
+        board[du2 - 1][dr2 + 1].color === color)
+    ) {
+      du2--;
+      dr2++;
+      di2++;
+    } else {
+      break;
+    }
+  }
+  while (dd2 + 1 < 9 && dl2 - 1 >= 0) {
+    if (dd2 + 1 === startPos.x && dl2 - 1 === startPos.y) {
+      break;
+    }
+    if (
+      board[dd2 + 1][dl2 - 1].size === "none" ||
+      (board[dd2 + 1][dl2 - 1].size === "big" &&
+        board[dd2 + 1][dl2 - 1].color === color)
+    ) {
+      dd2++;
+      dl2--;
+      di2++;
+    } else {
+      break;
+    }
+  }
+  if (di2 >= 5) {
+    return true;
+  }
+  return false;
+}
+
+export function getMoveableAdjacents(
+  board: TBall98[][],
+  pos: BallPosition,
+): BallPosition[] {
+  const visited = new Array(9)
+    .fill(new Array<boolean>(9).fill(false))
+    .map((row) => [...row]);
+  visited[pos.x][pos.y] = true;
+  const queue: BallPosition[] = [pos];
+  const result: BallPosition[] = [];
+  for (let i = 0; i < queue.length; i++) {
+    let x = queue[i].x,
+      y = queue[i].y;
+    if (x - 1 >= 0 && board[x - 1][y].size !== "big" && !visited[x - 1][y]) {
+      visited[x - 1][y] = true;
+      queue.push({ x: x - 1, y: y });
+      result.push({ x: x - 1, y: y });
+    }
+    if (x + 1 < 9 && board[x + 1][y].size !== "big" && !visited[x + 1][y]) {
+      visited[x + 1][y] = true;
+      queue.push({ x: x + 1, y: y });
+      result.push({ x: x + 1, y: y });
+    }
+    if (y - 1 >= 0 && board[x][y - 1].size !== "big" && !visited[x][y - 1]) {
+      visited[x][y - 1] = true;
+      queue.push({ x, y: y - 1 });
+      result.push({ x, y: y - 1 });
+    }
+    if (y + 1 < 9 && board[x][y + 1].size !== "big" && !visited[x][y + 1]) {
+      visited[x][y + 1] = true;
+      queue.push({ x, y: y + 1 });
+      result.push({ x, y: y + 1 });
+    }
+  }
+  return result;
+}
+
+export function getHint(board: TBall98[][]): [BallPosition, BallPosition] {
+  // best case (explode)
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (board[i][j].size === "big") {
+        const cur: BallPosition = { x: i, y: j };
+        const adjacents = getMoveableAdjacents(board, cur);
+        for (let x of adjacents) {
+          if (checkBest(board, cur, x)) {
+            return [cur, x];
+          }
+        }
+      }
+    }
+  }
+  // good case (can explode)
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (board[i][j].size === "big") {
+        const cur: BallPosition = { x: i, y: j };
+        const adjacents = getMoveableAdjacents(board, cur);
+        for (let x of adjacents) {
+          if (checkGood(board, cur, x)) {
+            return [cur, x];
+          }
+        }
+      }
+    }
+  }
+  // worst case
+  for (let i = 0; i < 9; i++) {
+    for (let j = 0; j < 9; j++) {
+      if (board[i][j].size === "big") {
+        const cur: BallPosition = { x: i, y: j };
+        const adjacents = getMoveableAdjacents(board, cur);
+        for (let x of adjacents) {
+          return [cur, x];
+        }
+      }
+    }
+  }
+  return [
+    { x: -1, y: -1 },
+    { x: -1, y: -1 },
+  ];
 }
