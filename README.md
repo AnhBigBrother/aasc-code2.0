@@ -6,14 +6,14 @@
 
 - `Nodejs` version >= 20
 
-- [Postgresql](https://www.postgresql.org/download/)  or [Docker](https://www.docker.com/get-started/) installed
+- [Postgresql](https://www.postgresql.org/download/) or [Docker](https://www.docker.com/get-started/) installed
 
 **Clone the repository:**
 
-  ```bash
-  git clone https://github.com/AnhBigBrother/aasc-code2.0
-  cd aasc-code2.0
-  ```
+```sh
+git clone https://github.com/AnhBigBrother/aasc-code2.0
+cd aasc-code2.0
+```
 
 ## My work
 
@@ -22,8 +22,8 @@
 - For more clearly explanation, read the `index.ts` file
 
 - To run code and view result, run:
-  
-  ``` bash
+
+  ```sh
   cd fibonacci100
 
   node index.js
@@ -37,16 +37,21 @@
 
 - If you have Docker installed, just run one command:
 
-```bash
+```sh
   # ../aasc-code2.0/board-games
   docker compose up
 ```
 
 - If not, following this:
+
   1. Set up your Postgres database first
   2. Go to ./board-games/server/src/app.module.ts, uncomment the code block from line 20 to line 29 and edit with your corresponding database configurations
   3. Comment the code block from line 33 to line 42
-  4. Run the command `npm run start:dev`
+  4. Run the command:
+
+  ```sh
+  npm run start:dev
+  ```
 
 **Feature:**
 
