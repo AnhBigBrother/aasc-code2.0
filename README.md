@@ -44,14 +44,9 @@
 
 - If not, following this:
   1. Set up your Postgres database first
-  2. Go to ./board-games/server/src/app.module.ts, uncomment the code block from line 24 to line 33 and edit with your corresponding database configurations
-  3. Comment the code block from line 36 to line 45
-  4. Run the `build.sh` script:
-
-    ```bash
-    # ../aasc-code2.0/board-games
-    sh build.sh
-    ```
+  2. Go to ./board-games/server/src/app.module.ts, uncomment the code block from line 20 to line 29 and edit with your corresponding database configurations
+  3. Comment the code block from line 33 to line 42
+  4. Run the command `npm run start:dev`
 
 **Feature:**
 
