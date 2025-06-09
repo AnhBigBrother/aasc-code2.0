@@ -46,11 +46,12 @@ cd aasc-code2.0
 
   1. Set up your Postgres database first
   2. Go to ./board-games/server/src/app.module.ts, uncomment the code block from line 20 to line 29 and edit with your corresponding database configurations
-  3. Comment the code block from line 33 to line 42
-  4. Run the command:
+  3. Comment the code block from line 32 to line 41
+  4. Run the commands:
 
   ```sh
-  npm run start:dev
+  npm install
+  npm run start:prod
   ```
 
 **Feature:**
