@@ -148,7 +148,7 @@ socket.on("game-end", onGameEnd);
 const handleJoinRoom = () => {
   const roomName = document.getElementById("caro-room-input").value;
   if (!roomName) {
-    alert("Enter room name before start");
+    return alert("Enter room name before start");
   }
   const nickname =
     document.getElementById("caro-user-nickname")?.textContent || "";
@@ -170,14 +170,14 @@ const handleLeaveRoom = () => {
   }
 };
 
-const handleMove = (x, y) => {
+const handleCaroMove = (x, y) => {
   if (game.id === -1) {
-    alert("Game has not started yet");
+    return alert("The game has not started yet");
   }
   let playerTurn = "X";
   if (game.o_player === socket.id) playerTurn = "O";
   if (playerTurn !== game.current_turn) {
-    alert("Not your turn");
+    return alert("Not your turn");
   }
   socket.emit("game-move", {
     room: game.room,

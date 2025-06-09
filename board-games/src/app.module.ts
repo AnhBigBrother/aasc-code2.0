@@ -17,7 +17,7 @@ import { ViewModule } from './view/view.module';
     }),
 
     // enalble if use local postgres database, disable if use docker compose
-    /* TypeOrmModule.forRoot({
+    TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5433, // Postgres's port on your local machine
@@ -26,10 +26,10 @@ import { ViewModule } from './view/view.module';
       database: 'retro_legends_database', // Create a Postgres database and place its name here
       entities: [UserEntity],
       synchronize: true, // Only do this during development for simplicity
-    }), */
+    }),
 
     // enable if use docker compose, disable if use local postgres database
-    TypeOrmModule.forRoot({
+    /* TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'database', // Postgres's service name (check the 'docker-compose.yaml' file)
       port: 5432, // Postgres's internal port
@@ -38,7 +38,7 @@ import { ViewModule } from './view/view.module';
       database: 'retro_legends_database',
       entities: [UserEntity],
       synchronize: true, // Only do this during development for simplicity
-    }),
+    }), */
 
     RouterModule.register([
       {

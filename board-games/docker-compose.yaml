@@ -1,9 +1,9 @@
 services:
-  app:
-    build: .
-    ports:
-      - 3000:3000
-    container_name: retro_legends
+  # app:
+  #   build: .
+  #   ports:
+  #     - 3000:3000
+  #   container_name: retro_legends
 
   database:
     image: postgres

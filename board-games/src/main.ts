@@ -21,14 +21,6 @@ async function bootstrap() {
     }),
   );
 
-  // disable in production
-  app.enableCors({
-    credentials: true,
-    origin: function (origin, callback) {
-      callback(null, true);
-    },
-  });
-
   await app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
