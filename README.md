@@ -63,12 +63,4 @@ cd aasc-code2.0
 
 - In the Caro game, you first need to enter the room name and click `Enter room` button. If the room has 2 players, the game will start.
 
-**Note:**
-
-- Due to time constraints, I have not been able to optimize the application's performance, and it may still have some bugs. If you encounter any problems, please reload the page.
-
-- In the Line98 game, the "hint" feature does not work very well. It can figure out how to blow up a line(if it is possible), but figuring out the chance to form a line is terrible (It can figure out a change, but not the best one).
-
-- In the game Line 98, I still can't do the feature "animation when moving the ball along the shortest path on the map", I have no skill in this part.
-
-- And yes, still in the Line 98 game, because I couldn't find a clean algorithm for this game, so my code for this part is a bit messy.
+_**Note\*:** The application's performance is probably not very good, and it may still have some bugs. If you encounter any problems, please reload the page._

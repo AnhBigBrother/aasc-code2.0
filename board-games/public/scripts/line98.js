@@ -97,14 +97,21 @@ const handleClickSquare = async (x, y) => {
     return;
   }
 
-  boardData[x][y].ballSize = "big";
-  boardData[x][y].ballColor = boardData[startPos.x][startPos.y].ballColor;
-  boardData[startPos.x][startPos.y].ballSize = "none";
+  const path = findMinPath(boardData, startPos, endPos);
+  console.log("turn positons:", path);
+  for (p of path) {
+    startBall.style.top = `${p.x * 4}rem`;
+    startBall.style.left = `${p.y * 4}rem`;
+    await wait(150);
+  }
 
   startBall.style.top = `${x * 4}rem`;
   startBall.style.left = `${y * 4}rem`;
-
   await wait(150);
+
+  boardData[x][y].ballSize = "big";
+  boardData[x][y].ballColor = boardData[startPos.x][startPos.y].ballColor;
+  boardData[startPos.x][startPos.y].ballSize = "none";
 
   const result = processBoard(boardData, endPos);
 
@@ -176,7 +183,7 @@ const updateBoard = (data) => {
   }
 };
 
-// base game logic, check libs/line98-base-game-logic.ts for more clearly
+// compile from src/libs/line98-base.ts, check it for more clearly
 function threeRandomColor() {
   const result = [];
   for (let i = 0; i < 3; i++) {
@@ -896,4 +903,65 @@ function checkGameEnded(board) {
     }
   }
   return true;
+}
+function findMinPath(board, startPos, endPos) {
+  const prevMove = [];
+  for (let i = 0; i < 9; i++) {
+    const row = [...new Array(9).fill(null)];
+    prevMove.push(row);
+  }
+  let q = [Object.assign({}, startPos)];
+  while (q.length > 0) {
+    let qNew = [];
+    for (let p of q) {
+      let x = p.x,
+        y = p.y;
+      if (
+        x + 1 < 9 &&
+        prevMove[x + 1][y] === null &&
+        board[x + 1][y].ballSize !== "big"
+      ) {
+        qNew.push({ x: x + 1, y });
+        prevMove[x + 1][y] = { x, y };
+      }
+      if (
+        y + 1 < 9 &&
+        prevMove[x][y + 1] === null &&
+        board[x][y + 1].ballSize !== "big"
+      ) {
+        qNew.push({ x, y: y + 1 });
+        prevMove[x][y + 1] = { x, y };
+      }
+      if (
+        x - 1 >= 0 &&
+        prevMove[x - 1][y] === null &&
+        board[x - 1][y].ballSize !== "big"
+      ) {
+        qNew.push({ x: x - 1, y });
+        prevMove[x - 1][y] = { x, y };
+      }
+      if (
+        y - 1 >= 0 &&
+        prevMove[x][y - 1] === null &&
+        board[x][y - 1].ballSize !== "big"
+      ) {
+        qNew.push({ x, y: y - 1 });
+        prevMove[x][y - 1] = { x, y };
+      }
+    }
+    q = qNew;
+  }
+  const path = []; // path is an array of turn positions
+  let cur = prevMove[endPos.x][endPos.y];
+  let next = Object.assign({}, endPos);
+  while (cur !== null && !(cur.x === startPos.x && cur.y === startPos.y)) {
+    let prev = prevMove[cur.x][cur.y];
+    if (prev.x !== next.x && prev.y !== next.y) {
+      // cur is a turn postion
+      path.push(Object.assign({}, cur));
+    }
+    next = cur;
+    cur = prev;
+  }
+  return path.reverse();
 }
