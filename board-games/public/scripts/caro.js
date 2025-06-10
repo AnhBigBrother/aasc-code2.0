@@ -80,8 +80,8 @@ const onLiveGame = (data) => {
     );
   }
 
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
+  for (let i = 0; i < 12; i++) {
+    for (let j = 0; j < 12; j++) {
       const square = document.getElementById(`caro-square-${i}-${j}`);
       if (game.board[i][j] === "_") {
         square.innerText = "";
@@ -95,8 +95,8 @@ const onLiveGame = (data) => {
 const onGameEnd = (data) => {
   console.log(data);
 
-  for (let i = 0; i < 9; i++) {
-    for (let j = 0; j < 9; j++) {
+  for (let i = 0; i < 12; i++) {
+    for (let j = 0; j < 12; j++) {
       const square = document.getElementById(`caro-square-${i}-${j}`);
       if (data.game.board[i][j] === "_") {
         square.innerText = "";
